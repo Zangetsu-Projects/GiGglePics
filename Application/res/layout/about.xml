@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.2"
+        android:adjustViewBounds="true"
+        android:src="@drawable/gigglepicslogo" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="5dp"
+        android:layout_weight=".1"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight=".5"
+            android:background="#ff0000"
+            android:text="Articles" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight=".5"
+            android:background="#ff0000"
+            android:text="Radio" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".7" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="GIGgle Pics provides live gig reviews/photography for free to the Kent/SE UK music scene.  We also take on album and track reviews from bands in any area. \n \n We are a team of volunteers of over 50 and everyone involved in GIGgle Pics has a huge passion for local music.  We are a non profit organisation and this is important to us.  We mainly work in the originals scene but will attend covers bands gigs when requested. \n \n We are currently taking on more volunteers as our aim is to cover as much of the local scene as we can.  In particular we need more live reviewers in or around the London area.  We also have volunteers that just help with admin or write music columns.  \n \n If you are interested in becoming involved: " />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:id="@+id/FacebookBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight=".3"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/facebookicon"
+                    android:text="Find us on Facebook" />
+
+                <ImageView
+                    android:id="@+id/TwitterBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight=".3"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/twittericon"
+                    android:text="Find us on Twitter" />
+
+                <ImageView
+                    android:id="@+id/SoundcloudBtn"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:layout_weight=".3"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/soundcloudicon"
+                    android:text="Find us on Soundcloud" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/EmailBtn"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="#ff0000"
+                android:text="Email Us" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

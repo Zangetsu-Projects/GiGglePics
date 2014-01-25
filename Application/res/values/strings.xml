@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, SimpleRSSReaderActivity!</string>
+    <string name="app_name">GiGgle Pics</string>
+    <string-array name="mixup_list">
+        <item >December</item>
+        <item >November</item>
+        <item >10/12/2013</item>
+        <item >September</item>
+        <item >August</item>
+        <item >July</item>
+    </string-array>
+
+</resources>
