@@ -20,8 +20,11 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -31,8 +34,14 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.prefs.Preferences;
 
 import javax.swing.JScrollPane;
@@ -42,6 +51,11 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 public class MainClass extends JFrame {
+	
+	String eol = System.getProperty("line.separator");
+	
+	static String version = "v 1.2.2";
+	String versionReleaseNotes = " " + version + eol + eol + " Added release notes tab";
 
 	private static final long serialVersionUID = 1L;
 
@@ -63,28 +77,7 @@ public class MainClass extends JFrame {
 	String fileName;
 
 	String Input = null;
-
-	static String version = "v 1.2";
 	
-	
-	//String version = getResourceAsStream("test");
-	public static void loadUserPreferences() {
-		
-		Preferences prefs = Preferences.userNodeForPackage(MainClass.class);
-		
-		version = prefs.get("CLIENT_VERSION", "v 1.2");
-	}
-	
-	public static void updateUserPreferences(String PREF_NAME, String newValue) {
-		
-		Preferences prefs = Preferences.userNodeForPackage(MainClass.class);
-
-		prefs.put(PREF_NAME, newValue);
-		
-		loadUserPreferences();
-		
-	}
-		
 
 	public static void main(String args[]) {
 
@@ -180,8 +173,6 @@ public class MainClass extends JFrame {
 	}
 
 	public MainClass() {
-		
-		loadUserPreferences();		
 
 		JPanel panel = new JPanel(new GridBagLayout());
 		this.getContentPane().add(panel);
@@ -313,7 +304,6 @@ public class MainClass extends JFrame {
 
 				} else {
 
-					String eol = System.getProperty("line.separator");
 
 					String content = "<!-- GiGgle Pics Application Settings File -->"
 							+ eol
@@ -703,6 +693,14 @@ public class MainClass extends JFrame {
 				}
 
 		});
+		
+		JTextArea releaseNotes = new JTextArea(versionReleaseNotes);
+		JScrollPane releaseScrollPane = new JScrollPane(releaseNotes);
+		releaseScrollPane.setPreferredSize(new Dimension(575, 310));
+		
+		
+		JPanel clientUpdatePanel = new JPanel();
+		clientUpdatePanel.setLayout(new GridBagLayout());
 
 		JPanel imagePanel = new JPanel();
 		imagePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -712,14 +710,18 @@ public class MainClass extends JFrame {
 		developerPanel.add(developerInfo);
 
 		JTabbedPane tabbedPane = new JTabbedPane();
+		
+		tabbedPane.addTab("Release Notes", null,
+				clientUpdatePanel, null);
+		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
 		tabbedPane.addTab("Volunteer Profiles", null, volunteerSettingsPanel,
 				null);
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
 		tabbedPane.addTab("Application Settings", null,
 				applicationSettingsPanel, null);
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+		tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 
 		GridBagConstraints gbc = new GridBagConstraints();
 
@@ -830,6 +832,11 @@ public class MainClass extends JFrame {
 		gbc.fill = WIDTH;
 		applicationSettingsPanel.add(loadAppSettings, gbc);
 		
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill = WIDTH;
+		clientUpdatePanel.add(releaseScrollPane);
+		
 
 		nameInput.setColumns(15);
 
@@ -848,32 +855,60 @@ public class MainClass extends JFrame {
 		this.setVisible(true);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		try {
-			System.out.println("Server call started");
-			String latestVersion = getFileContent(new URL("http://masterzangetsu.eu/Apps/Client/GiGglePics/version.txt"));
-			
-			if (latestVersion.equals(version)) {
-				
-			} else if (latestVersion.equals("fail")) {
-				
-			} else {
-				
-				int result = infoBox("Update Client Version to " + latestVersion, "New Version Available", "question");
-				if (result == 0) {
-					
-					System.out.println("Yes i want to update");
-					
-				} else if (result == 1){
-					
-					System.out.println("No i dont want to update");
-					
-				}	
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			infoBox("Could not contact server", "Error", "question");
-		}
 
+
+		checkForUpdates();
 	}
+	
+	private static final ScheduledExecutorService worker = 
+			  Executors.newSingleThreadScheduledExecutor();
+
+			void checkForUpdates() {
+
+			  Runnable task = new Runnable() {
+			    public void run() {
+
+			    	try {
+						System.out.println("Server call started");
+						String latestVersion = getFileContent(new URL("http://masterzangetsu.eu/Apps/Client/GiGglePics/version.txt"));
+						
+						if (latestVersion.equals(version)) {
+							
+						} else if (latestVersion.equals("fail")) {
+							
+						} else {
+							
+							int result = infoBox("Update Client Version to " + latestVersion, "New Version Available", "question");
+							if (result == 0) {
+								
+								System.out.println("Yes i want to update");
+								
+								try(
+										  ReadableByteChannel in=Channels.newChannel(
+										    new URL("http://masterzangetsu.eu/Apps/Client/GiGglePics/latest.jar").openStream());
+										  FileChannel out = new FileOutputStream(new File(
+										    "Zangetsu Settings Editor " + latestVersion + ".jar")).getChannel() ) {
+
+										  out.transferFrom(in, 0, Long.MAX_VALUE);
+										} catch (IOException e1) {
+
+											e1.printStackTrace();
+										}
+								System.exit(0);
+								
+							} else if (result == 1){
+								
+								System.out.println("No i dont want to update");
+								
+							}	
+						}
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+						infoBox("Could not contact server", "Error", "question");
+					}
+			    }
+			  };
+			  worker.schedule(task, 20, TimeUnit.SECONDS);
+
+			}
 }
