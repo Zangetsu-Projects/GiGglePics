@@ -73,6 +73,8 @@ public class MainClass extends JFrame {
 
 	JButton saveFile;
 	JButton loadFile;
+	
+	JTextArea releaseNotes;
 
 	String fileName;
 
@@ -137,34 +139,22 @@ public class MainClass extends JFrame {
 			BufferedReader br = new BufferedReader(
                                new InputStreamReader(conn.getInputStream()));
  
-			inputLine = br.readLine();
+			//inputLine = br.readLine();
  
-			/*save to this filename
-			//String fileName = "/users/mkyong/test.html";
-			//File file = new File(fileName);
- 
-			//if (!file.exists()) {
-			//	file.createNewFile();
-			//}
- 
-			//use FileWriter to write file
-			//FileWriter fw = new FileWriter(file.getAbsoluteFile());
-			//BufferedWriter bw = new BufferedWriter(fw);
- 
-			while ((br.readLine()) != null) {
-				//bw.write(inputLine);
+			String s = "";
+			
+			while ((s = br.readLine()) != null) {
+				
+				inputLine += s;
 			}
- 
-			bw.close();
-			*/
 			br.close();
  
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
-			infoBox("Could not contact server", "Error", "info");
+			infoBox("Could not contact server, please ensure that client is upto date or risk incorrect output", "Internet Connection Error", "info");
 		} catch (IOException e) {
 			e.printStackTrace();
-			infoBox("Could not contact server", "Error", "info");
+			infoBox("Could not contact server, please ensure that client is upto date or risk incorrect output", "Internet Connection Error", "info");
 		}
 		
 		System.out.println(inputLine);
@@ -261,7 +251,8 @@ public class MainClass extends JFrame {
 		authorizationCode.setEditable(false);
 
 		saveFile = new JButton("Save");
-		saveFile.setPreferredSize(new Dimension(40, 40));
+		saveFile.setAlignmentX(CENTER_ALIGNMENT);
+		saveFile.setMaximumSize(new Dimension(200, 100));
 		saveFile.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -346,7 +337,8 @@ public class MainClass extends JFrame {
 		});
 
 		loadFile = new JButton("Load");
-		loadFile.setPreferredSize(new Dimension(40, 40));
+		loadFile.setAlignmentX(CENTER_ALIGNMENT);
+		loadFile.setMaximumSize(new Dimension(200, 100));
 		loadFile.addActionListener(new ActionListener() {
 
 			@Override
@@ -478,7 +470,6 @@ public class MainClass extends JFrame {
 		applicationSettingsPanel.setLayout(new GridBagLayout());
 
 		final JCheckBox enabled = new JCheckBox("Application Enabled");
-		// enabled.setMnemonic(KeyEvent.VK_C);
 		enabled.setSelected(true);
 
 		final JTextField soundcloud1 = new JTextField();
@@ -551,13 +542,13 @@ public class MainClass extends JFrame {
 		soundcloudLabel6 = BorderFactory
 				.createTitledBorder("Monthly Mixup Name");
 		soundcloud6.setBorder(soundcloudLabel6);
-		soundcloud6.setColumns(15);
+		soundcloud6.setColumns(25);
 
 		final JTextField mixupUrl6 = new JTextField();
 		TitledBorder urlLabel6;
 		urlLabel6 = BorderFactory.createTitledBorder("Monthly Mixup Url");
 		mixupUrl6.setBorder(urlLabel6);
-		mixupUrl6.setColumns(15);
+		mixupUrl6.setColumns(25);
 
 		JButton saveAppSettings = new JButton("Save");
 		saveAppSettings.addActionListener(new ActionListener() {
@@ -694,7 +685,7 @@ public class MainClass extends JFrame {
 
 		});
 		
-		JTextArea releaseNotes = new JTextArea(versionReleaseNotes);
+		releaseNotes = new JTextArea(versionReleaseNotes);
 		JScrollPane releaseScrollPane = new JScrollPane(releaseNotes);
 		releaseScrollPane.setPreferredSize(new Dimension(575, 310));
 		
@@ -870,7 +861,16 @@ public class MainClass extends JFrame {
 
 			    	try {
 						System.out.println("Server call started");
-						String latestVersion = getFileContent(new URL("http://masterzangetsu.eu/Apps/Client/GiGglePics/version.txt"));
+						String returnedString = getFileContent(new URL("http://masterzangetsu.eu/Apps/Client/GiGglePics/version.txt"));
+						
+						int versionLocation = returnedString.indexOf("newest");
+						int notesLocation = returnedString.indexOf("release notes");
+						
+						String latestVersion = returnedString.substring(versionLocation + 7, notesLocation).replace(" ", "").replace("_", " ");
+						String downloadedNotes = returnedString.substring(notesLocation + 14, returnedString.length()).replace("</br>", eol);
+						
+						versionReleaseNotes = downloadedNotes;
+						releaseNotes.setText(downloadedNotes);
 						
 						if (latestVersion.equals(version)) {
 							
@@ -904,7 +904,7 @@ public class MainClass extends JFrame {
 						}
 					} catch (MalformedURLException e) {
 						e.printStackTrace();
-						infoBox("Could not contact server", "Error", "question");
+						infoBox("Could not contact server, please ensure that client is upto date or risk incorrect output", "Internet Connection Error", "info");
 					}
 			    }
 			  };
