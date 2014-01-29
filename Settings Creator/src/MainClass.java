@@ -54,7 +54,7 @@ public class MainClass extends JFrame {
 	
 	String eol = System.getProperty("line.separator");
 	
-	static String version = "v 1.2.2";
+	static String version = "v 1.2.3";
 	String versionReleaseNotes = " " + version + eol + eol + " Added release notes tab";
 
 	private static final long serialVersionUID = 1L;
